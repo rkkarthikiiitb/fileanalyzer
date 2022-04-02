@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: file-analyser
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+log4j:
+  logger:
+    org:
+      apache:
+        pdfbox:
+          io:
+            ScratchFileBuffer: WARN

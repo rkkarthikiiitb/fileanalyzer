@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.6'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'com.settld'
@@ -19,12 +20,59 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation group: 'org.apache.tika', name: 'tika-parsers', version: '1.28.1'
+	implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.25'
+	implementation group: 'com.massisframework', name: 'j-text-utils', version: '0.3.4'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-tasks.named('test') {
+jacoco {
+	toolVersion = "0.8.7"
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+			excludes = [
+					'com/ap/frauddetectionservice/exception/**',
+					'com/ap/frauddetectionservice/model/**',
+					'com/ap/frauddetectionservice/**.**'
+			]
+		}
+		rule {
+			limit {
+				counter = 'INSTRUCTION'
+				value = 'COVEREDRATIO'
+				minimum = 0.6
+			}
+		}
+	}
+}
+
+jacocoTestReport {
+	reports {
+		html.enabled true
+		xml.enabled true
+	}
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect{
+			fileTree(dir: it, excludes: [
+					'com/ap/frauddetectionservice/exception/**.**',
+					'com/ap/frauddetectionservice/model/**.**',
+					'com/ap/frauddetectionservice/**.**'
+			])
+		}))
+	}
+}
+
+test {
+	finalizedBy jacocoTestReport
 	useJUnitPlatform()
 }
+
+check.dependsOn jacocoTestCoverageVerification

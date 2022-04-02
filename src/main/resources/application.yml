@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: file-analyser
+
+logging:
+  level:
+    org.springframework.web: DEBUG
